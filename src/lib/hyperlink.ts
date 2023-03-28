@@ -3,6 +3,24 @@
 import { typeTextByLanguage, mapExtensionToType } from '../enum/hyperlink';
 import { ExceptTextRange } from '../types/index';
 
+export const listUnuseText = (text: string) => {
+  // regex exec muti (?:<a.*?<\/a>) and return an array that contain start and end index
+  const regex = /aria-label=(\\"|")[^"]*(\\"|")/g;
+  let match: RegExpExecArray | null;
+  const matches: ExceptTextRange[] = [];
+  while ((match = regex.exec(text)) !== null) {
+    // This is necessary to avoid infinite loops with zero-width matches
+    if (match.index === regex.lastIndex) {
+      regex.lastIndex++;
+    }
+    // get the start and end index of the match and store it in the array
+    const start = match.index;
+    const end = regex.lastIndex;
+    matches.push({ start, end, text: match[0] });
+  }
+  return matches;
+};
+
 export const listLinkTag = (text: string) => {
   // regex exec muti (?:<a.*?<\/a>) and return an array that contain start and end index
   const regex = /<a.*?<\/a>/g;
@@ -47,7 +65,7 @@ export const replaceTextLinkToSpecialHyperlink = (text: string) => {
     if (match.index === regex.lastIndex) {
       regex.lastIndex++;
     }
-    const exceptRanges = [...listLinkTag(text), ...listImgTag(text)];
+    const exceptRanges = [...listLinkTag(text), ...listImgTag(text), ...listUnuseText(text)];
     const isExcept = exceptRanges.some(({ start, end }) => {
       return start <= match.index && match.index <= end;
     });
@@ -63,7 +81,6 @@ export const replaceTextLinkToSpecialHyperlink = (text: string) => {
   }
   return text;
 };
-
 export const replaceTextLinkToOtherHyperlink = (text: string) => {
   const regex =
     /(?:https?:\/\/(?:www\.|(?!www))(?:[a-zA-Z0-9][a-zA-Z0-9-]+(?:\.|(?!\.)))+(?:[\/,\?][^\s]{2,}|(?![\/,\?][^\s]{2,}))|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[a-zA-Z0-9]+(?:[\/,\?][^\s]{2,}|(?![\/,\?][^\s]{2,}))|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[a-zA-Z0-9]+(?:[\/,\?][^\s]{2,}|(?![\/,\?][^\s]{2,}))|www\.[a-zA-Z0-9]+\.[a-zA-Z0-9]+(?:[\/,\?][^\s]{2,}|(?![\/,\?][^\s]{2,})))/g;
@@ -73,7 +90,7 @@ export const replaceTextLinkToOtherHyperlink = (text: string) => {
     if (match.index === regex.lastIndex) {
       regex.lastIndex++;
     }
-    const exceptRanges = [...listLinkTag(text), ...listImgTag(text)];
+    const exceptRanges = [...listLinkTag(text), ...listImgTag(text), ...listUnuseText(text)];
     const isExcept = exceptRanges.some(({ start, end }) => {
       return start <= match.index && match.index <= end;
     });
@@ -97,7 +114,7 @@ export const replaceTextLinkToEmailHyperlink = (text: string) => {
     if (match.index === regex.lastIndex) {
       regex.lastIndex++;
     }
-    const exceptRanges = [...listLinkTag(text), ...listImgTag(text)];
+    const exceptRanges = [...listLinkTag(text), ...listImgTag(text), ...listUnuseText(text)];
     const isExcept = exceptRanges.some(({ start, end }) => {
       return start <= match.index && match.index <= end;
     });
@@ -119,7 +136,7 @@ export const replaceTextLinkToAddressHyperlink = (text: string) => {
     if (match.index === regex.lastIndex) {
       regex.lastIndex++;
     }
-    const exceptRanges = [...listLinkTag(text), ...listImgTag(text)];
+    const exceptRanges = [...listLinkTag(text), ...listImgTag(text), ...listUnuseText(text)];
     const isExcept = exceptRanges.some(({ start, end }) => {
       return start <= match.index && match.index <= end;
     });
@@ -141,7 +158,7 @@ export const replaceTextLinkToPhoneHyperlink = (text: string) => {
     if (match.index === regex.lastIndex) {
       regex.lastIndex++;
     }
-    const exceptRanges = [...listLinkTag(text), ...listImgTag(text)];
+    const exceptRanges = [...listLinkTag(text), ...listImgTag(text), ...listUnuseText(text)];
 
     const isExcept = exceptRanges.some(({ start, end }) => {
       return start <= match.index && match.index <= end;
