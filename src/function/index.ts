@@ -14,10 +14,10 @@ export const textLinkToHyperlink = (text: string) => {
 
   text = replaceTextLinkToEmailHyperlink(text);
 
-  text = replaceTextLinkToAddressHyperlink(text);
-
   text = replaceTextLinkToPhoneHyperlink(text);
-  // this function 
+
+  text = replaceTextLinkToAddressHyperlink(text);
+  // this function
   // text = replaceTextLinkToText(text)
   return text;
 };
